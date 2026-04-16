@@ -8,6 +8,7 @@ const filterChips = document.querySelectorAll(".filter-chip");
 const certItems = document.querySelectorAll(".cert-item");
 const contactForm = document.querySelector("#contact-form");
 const toastStack = document.querySelector("#toast-stack");
+const projectTiles = document.querySelectorAll(".project-tile");
 
 const savedTheme = localStorage.getItem("portfolio-theme");
 const preferredDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -49,6 +50,30 @@ const revealObserver = new IntersectionObserver(
 );
 
 reveals.forEach((item) => revealObserver.observe(item));
+
+projectTiles.forEach((tile) => {
+  const toggleFlip = () => {
+    const isFlipped = tile.classList.toggle("is-flipped");
+    tile.setAttribute("aria-expanded", String(isFlipped));
+  };
+
+  tile.addEventListener("click", (event) => {
+    if (event.target.closest(".project-button")) {
+      return;
+    }
+
+    toggleFlip();
+  });
+
+  tile.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    event.preventDefault();
+    toggleFlip();
+  });
+});
 
 filterChips.forEach((chip) => {
   chip.addEventListener("click", () => {
