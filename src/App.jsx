@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -52,32 +52,47 @@ export default function App() {
   }, [theme]);
   
   // Testimonials State (Default values + dynamic updates)
-  const [testimonials, setTestimonials] = useState([
-    {
-      name: "Peradeniya AgriTech",
-      role: "Co-Founder",
-      message: "Outstanding engineering and eye for detail. The smart plant monitoring system was integrated flawlessly!",
-      avatar: "/assets/icon.png"
-    },
-    {
-      name: "Bistro Cafe",
-      role: "Owner",
-      message: "Naseef brought our restaurant layout to life with smooth animations. Highly recommend his creative stack.",
-      avatar: "/assets/icon.png"
-    },
-    {
-      name: "UOP Engineering Faculty",
-      role: "Coordinator",
-      message: "A brilliant student and designer. His care for code logic is matched by his graphic layouts.",
-      avatar: "/assets/icon.png"
-    },
-    {
-      name: "Destino Travel",
-      role: "Manager",
-      message: "Very easy to work with, responsive, and produced a beautiful travel agency website theme.",
-      avatar: "/assets/icon.png"
+  const [testimonials, setTestimonials] = useState(() => {
+    const saved = localStorage.getItem('portfolio-testimonials');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Error parsing testimonials from localStorage:", e);
+      }
     }
-  ]);
+    return [
+      {
+        name: "Peradeniya AgriTech",
+        role: "Co-Founder",
+        message: "Outstanding engineering and eye for detail. The smart plant monitoring system was integrated flawlessly!",
+        avatar: "/assets/icon.png"
+      },
+      {
+        name: "Bistro Cafe",
+        role: "Owner",
+        message: "Naseef brought our restaurant layout to life with smooth animations. Highly recommend his creative stack.",
+        avatar: "/assets/icon.png"
+      },
+      {
+        name: "UOP Engineering Faculty",
+        role: "Coordinator",
+        message: "A brilliant student and designer. His care for code logic is matched by his graphic layouts.",
+        avatar: "/assets/icon.png"
+      },
+      {
+        name: "Destino Travel",
+        role: "Manager",
+        message: "Very easy to work with, responsive, and produced a beautiful travel agency website theme.",
+        avatar: "/assets/icon.png"
+      }
+    ];
+  });
+
+  // Save testimonials to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('portfolio-testimonials', JSON.stringify(testimonials));
+  }, [testimonials]);
 
   // Initialise Lenis smooth scroll, GSAP and AOS
   useEffect(() => {
