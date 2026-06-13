@@ -35,7 +35,7 @@ export default function Footer() {
         
         {/* Profile Showcase Block */}
         <div className="relative mb-8 flex flex-col items-center">
-          <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-zinc-950 shadow-2xl scale-100 hover:scale-105 transition-transform duration-500">
+          <div className="w-24 h-24 rounded-2xl overflow-hidden border-4 border-zinc-950 shadow-2xl scale-100 hover:scale-105 transition-transform duration-500">
             <img
               src="/assets/profile.png"
               alt="MFA Naseef Sharaf"
