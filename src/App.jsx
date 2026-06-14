@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // Components
 import Loader from './components/Loader';
@@ -234,6 +235,7 @@ export default function App() {
 
         </div>
       )}
+      <SpeedInsights />
     </>
   );
 }
