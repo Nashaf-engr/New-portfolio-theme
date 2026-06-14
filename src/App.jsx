@@ -51,6 +51,33 @@ export default function App() {
     localStorage.setItem('portfolio-theme', theme);
   }, [theme]);
   
+  const defaultTestimonials = [
+    {
+      name: "Peradeniya AgriTech",
+      role: "Co-Founder",
+      message: "Outstanding engineering and eye for detail. The smart plant monitoring system was integrated flawlessly!",
+      avatar: "/assets/icon.png"
+    },
+    {
+      name: "Bistro Cafe",
+      role: "Owner",
+      message: "Naseef brought our restaurant layout to life with smooth animations. Highly recommend his creative stack.",
+      avatar: "/assets/icon.png"
+    },
+    {
+      name: "UOP Engineering Faculty",
+      role: "Coordinator",
+      message: "A brilliant student and designer. His care for code logic is matched by his graphic layouts.",
+      avatar: "/assets/icon.png"
+    },
+    {
+      name: "Destino Travel",
+      role: "Manager",
+      message: "Very easy to work with, responsive, and produced a beautiful travel agency website theme.",
+      avatar: "/assets/icon.png"
+    }
+  ];
+
   // Testimonials State (Default values + dynamic updates)
   const [testimonials, setTestimonials] = useState(() => {
     const saved = localStorage.getItem('portfolio-testimonials');
@@ -61,33 +88,26 @@ export default function App() {
         console.error("Error parsing testimonials from localStorage:", e);
       }
     }
-    return [
-      {
-        name: "Peradeniya AgriTech",
-        role: "Co-Founder",
-        message: "Outstanding engineering and eye for detail. The smart plant monitoring system was integrated flawlessly!",
-        avatar: "/assets/icon.png"
-      },
-      {
-        name: "Bistro Cafe",
-        role: "Owner",
-        message: "Naseef brought our restaurant layout to life with smooth animations. Highly recommend his creative stack.",
-        avatar: "/assets/icon.png"
-      },
-      {
-        name: "UOP Engineering Faculty",
-        role: "Coordinator",
-        message: "A brilliant student and designer. His care for code logic is matched by his graphic layouts.",
-        avatar: "/assets/icon.png"
-      },
-      {
-        name: "Destino Travel",
-        role: "Manager",
-        message: "Very easy to work with, responsive, and produced a beautiful travel agency website theme.",
-        avatar: "/assets/icon.png"
-      }
-    ];
+    return defaultTestimonials;
   });
+
+  // Load reviews dynamically from public/reviews.json
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await fetch('/reviews.json');
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setTestimonials(data);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching reviews from reviews.json:", error);
+      }
+    };
+    fetchReviews();
+  }, []);
 
   // Save testimonials to localStorage whenever they change
   useEffect(() => {
@@ -141,9 +161,43 @@ export default function App() {
     }, 3200);
   };
 
-  const handleAddTestimonial = (newReview) => {
+  const handleAddTestimonial = async (newReview) => {
+    // 1. Instantly update local state so the user sees their review immediately
     setTestimonials((prev) => [newReview, ...prev]);
-    handleShowToast('success', 'Review Added', 'Your review was submitted and added to the marquee!');
+    handleShowToast('success', 'Submitting Review', 'Sending your review to GitHub...');
+
+    try {
+      const response = await fetch('/api/add-review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newReview.name,
+          role: newReview.role,
+          message: newReview.message,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        handleShowToast('success', 'Review Saved', 'Your review was saved to GitHub! It will display for everyone in a few minutes once Vercel finishes deploying.');
+      } else {
+        console.warn('API error saving review to GitHub:', result);
+        
+        if (response.status === 404) {
+          // This typically happens in local development environment
+          handleShowToast('success', 'Review Added (Local)', 'Review added locally! (GitHub updates are only active on the deployed Vercel site).');
+        } else {
+          const errorMsg = result.error || 'Server error';
+          handleShowToast('error', 'Sync Failed', `Your review was added locally, but could not be saved to GitHub: ${errorMsg}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error submitting review to API:', error);
+      handleShowToast('success', 'Review Added (Local)', 'Review added locally! (Note: Could not connect to API server).');
+    }
   };
 
   return (
