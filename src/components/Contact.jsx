@@ -1,5 +1,16 @@
-import React, { useState } from 'react';
-import { FaWhatsapp, FaInstagram, FaLinkedinIn, FaGithub, FaEnvelope } from 'react-icons/fa';
+import { useState } from 'react';
+import SectionHeader from './SectionHeader';
+import CardLayout from './CardLayout';
+import {
+  FaWhatsapp,
+  FaInstagram,
+  FaLinkedinIn,
+  FaGithub,
+  FaEnvelope,
+  FaUser,
+  FaCommentDots,
+} from 'react-icons/fa';
+import { LuSend } from 'react-icons/lu';
 
 export default function Contact({ onShowToast }) {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -44,7 +55,7 @@ export default function Contact({ onShowToast }) {
       if (onShowToast) {
         onShowToast('success', 'Message sent', 'Thanks for reaching out! Your message has been sent successfully.');
       }
-    } catch (err) {
+    } catch {
       if (onShowToast) {
         onShowToast('error', 'Message not sent', 'Something went wrong. Please check your network or try again.');
       }
@@ -54,132 +65,164 @@ export default function Contact({ onShowToast }) {
   };
 
   const socialChannels = [
-    { icon: <FaWhatsapp />, url: 'https://wa.me/94720243581?text=Hello%20Naseef%2C%20I%20visited%20your%20portfolio.', color: 'hover:bg-[#25D366] hover:border-[#25D366] hover:shadow-[0_0_30px_rgba(37,211,102,0.4)]', label: 'WhatsApp' },
-    { icon: <FaInstagram />, url: 'https://www.instagram.com/im_nashani.410?igsh=cGthcjVuZndkdG83', color: 'hover:bg-[#E1306C] hover:border-[#E1306C] hover:shadow-[0_0_30px_rgba(225,48,108,0.4)]', label: 'Instagram' },
-    { icon: <FaLinkedinIn />, url: 'https://www.linkedin.com/in/naseef-sharaf-mfa-291293346/', color: 'hover:bg-[#0077B5] hover:border-[#0077B5] hover:shadow-[0_0_30px_rgba(0,119,181,0.4)]', label: 'LinkedIn' },
-    { icon: <FaGithub />, url: 'https://github.com/Nashaf-engr', color: 'hover:bg-white hover:border-white hover:text-zinc-950 hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]', label: 'GitHub' }
+    { icon: <FaWhatsapp />, url: 'https://wa.me/94720243581?text=Hello%20Naseef%2C%20I%20visited%20your%20portfolio.', label: 'WhatsApp' },
+    { icon: <FaLinkedinIn />, url: 'https://www.linkedin.com/in/naseef-sharaf-mfa-291293346/', label: 'LinkedIn' },
+    { icon: <FaGithub />, url: 'https://github.com/Nashaf-engr', label: 'GitHub' },
+    { icon: <FaInstagram />, url: 'https://www.instagram.com/itz.ur.nx_shx_f', label: 'Instagram' },
   ];
 
   return (
-    <section
-      id="contact"
-      className="relative w-full min-h-screen py-24 bg-zinc-950 overflow-hidden z-10 flex flex-col justify-center items-center"
-    >
-      {/* Background massive typography CONNECT */}
-      <div className="absolute inset-x-0 top-[40%] flex items-center justify-center pointer-events-none select-none z-0">
-        <h2 className="font-display font-black text-[22vw] text-white/5 opacity-[0.02] tracking-tighter uppercase leading-none">
-          CONNECT
-        </h2>
-      </div>
+    <section id="contact" className="relative w-full py-6 sm:py-8">
+      <SectionHeader title="Contact Information" />
 
-      <div className="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center z-10">
-        
-        {/* Left Side: Headline & Social Buttons */}
-        <div className="lg:col-span-6 space-y-8 text-left">
-          <div className="space-y-4">
-            <span className="text-xs font-mono uppercase tracking-[0.25em] text-luxury-yellow/80">
-              Get In Touch
-            </span>
-            <h3 className="font-display font-black text-5xl md:text-6xl uppercase tracking-tight text-white leading-none">
-              Let's Talk
-            </h3>
-          </div>
-          <p className="text-zinc-400 text-base md:text-lg leading-relaxed max-w-md">
-            Have an idea, project, or collaboration in mind? I'm open to opportunities in development, design, and creative tech work. Feel free to reach out.
-          </p>
+      <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-6">
+        {/* Top 2 Info Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardLayout>
+            <div className="card-base p-6 md:p-8 space-y-3">
+              <span className="text-xs font-mono text-accent uppercase tracking-widest block">
+                Location
+              </span>
+              <div className="space-y-2 text-sm text-light-gray font-mono">
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span>Country:</span>
+                  <span className="text-snow">Sri Lanka</span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span>Institution:</span>
+                  <span className="text-snow">University of Peradeniya</span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span>Field:</span>
+                  <span className="text-snow">Computer Engineering</span>
+                </div>
+              </div>
+            </div>
+          </CardLayout>
 
-          {/* Social Circle Icons */}
-          <div className="flex flex-wrap gap-4 pt-4">
-            {socialChannels.map((platform, idx) => (
-              <a
-                key={idx}
-                href={platform.url}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={platform.label}
-                className={`w-12 h-12 rounded-full border-2 border-white/20 text-white flex items-center justify-center transition-all duration-300 hover:scale-105 ${platform.color}`}
-              >
-                {platform.icon}
-              </a>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3 text-zinc-400 text-sm">
-            <FaEnvelope className="text-luxury-yellow" />
-            <a href="mailto:nashafeng32@gmail.com" className="hover:text-white transition-colors underline">
-              nashafeng32@gmail.com
-            </a>
-          </div>
+          <CardLayout>
+            <div className="card-base p-6 md:p-8 space-y-3">
+              <span className="text-xs font-mono text-accent uppercase tracking-widest block">
+                Direct Channels
+              </span>
+              <div className="space-y-2 text-sm text-light-gray font-mono">
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span>Email:</span>
+                  <a href="mailto:nashafeng32@gmail.com" className="text-snow hover:text-accent transition-colors">
+                    nashafeng32@gmail.com
+                  </a>
+                </div>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span>WhatsApp:</span>
+                  <a href="https://wa.me/94720243581" target="_blank" rel="noreferrer" className="text-snow hover:text-accent transition-colors">
+                    +94 72 024 3581
+                  </a>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span>Availability:</span>
+                  <span className="text-accent font-semibold">Open for Collaboration</span>
+                </div>
+              </div>
+            </div>
+          </CardLayout>
         </div>
 
-        {/* Right Side: Form (Apple inspired Glassmorphic layout) */}
-        <div className="lg:col-span-6 w-full">
-          <form
-            onSubmit={handleFormSubmit}
-            className="w-full max-w-2xl bg-zinc-900/40 border border-white/5 p-8 sm:p-10 rounded-[2.5rem] shadow-2xl backdrop-blur-md flex flex-col gap-6"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-xs uppercase tracking-wider text-zinc-500 font-display">Name</label>
+        {/* Social Media Links Bar */}
+        <div className="card-base p-6 flex items-center justify-around border border-white/5">
+          {socialChannels.map((platform, idx) => (
+            <a
+              key={idx}
+              href={platform.url}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={platform.label}
+              className="text-2xl text-snow hover:text-accent hover:scale-125 transition-all duration-300 flex items-center gap-2"
+            >
+              {platform.icon}
+              <span className="text-xs font-mono hidden sm:inline text-light-gray hover:text-accent">
+                {platform.label}
+              </span>
+            </a>
+          ))}
+        </div>
+
+        {/* Contact Form */}
+        <div className="card-base p-6 md:p-8 border border-white/5">
+          <h3 className="font-display font-bold text-xl text-snow mb-2">
+            Get In Touch
+          </h3>
+          <p className="text-xs sm:text-sm text-light-gray mb-6">
+            Have a project, idea, or inquiry? Leave a message below and I will get back to you promptly.
+          </p>
+
+          <form onSubmit={handleFormSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="relative focus-icon">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-light-gray icon-label transition-colors">
+                  <FaUser className="text-sm" />
+                </div>
                 <input
                   type="text"
                   required
                   placeholder="Your Name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-zinc-950/60 border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-zinc-500 focus:outline-none focus:border-white/40 transition-colors"
+                  className="input-field pl-10"
                 />
               </div>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-xs uppercase tracking-wider text-zinc-500 font-display">Email</label>
+              <div className="relative focus-icon">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-light-gray icon-label transition-colors">
+                  <FaEnvelope className="text-sm" />
+                </div>
                 <input
                   type="email"
                   required
-                  placeholder="example@domain.com"
+                  placeholder="Email Address"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-zinc-950/60 border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-zinc-500 focus:outline-none focus:border-white/40 transition-colors"
+                  className="input-field pl-10"
                 />
               </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-xs uppercase tracking-wider text-zinc-500 font-display">Subject</label>
+            <div className="relative focus-icon">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-light-gray icon-label transition-colors">
+                <FaCommentDots className="text-sm" />
+              </div>
               <input
                 type="text"
-                placeholder="Project Inquiry"
+                placeholder="Subject / Project Title"
                 value={formData.subject}
                 onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                className="w-full bg-zinc-950/60 border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-zinc-500 focus:outline-none focus:border-white/40 transition-colors"
+                className="input-field pl-10"
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-xs uppercase tracking-wider text-zinc-500 font-display">Message</label>
+            <div className="relative focus-icon">
               <textarea
                 required
                 rows="5"
-                placeholder="Tell me about your idea..."
+                placeholder="Your Message..."
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="w-full bg-zinc-950/60 border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-zinc-500 focus:outline-none focus:border-white/40 transition-colors resize-none"
+                className="input-field resize-none p-3.5"
               />
             </div>
 
-            {/* Honey pot / Spambot protection */}
+            {/* Honeypot for spam protection */}
             <input type="text" name="_honey" className="hidden" tabIndex={-1} autoComplete="off" />
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-white hover:bg-zinc-200 text-zinc-950 font-display font-bold uppercase tracking-widest py-4.5 rounded-xl transition-all hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] disabled:opacity-50"
+              className="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto"
             >
-              {isSubmitting ? 'Sending...' : 'Send Message'}
+              <LuSend className="text-sm" />
+              {isSubmitting ? 'Sending Message...' : 'Send Message'}
             </button>
           </form>
         </div>
-
       </div>
     </section>
   );

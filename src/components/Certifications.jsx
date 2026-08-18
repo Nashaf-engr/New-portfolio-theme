@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import gsap from 'gsap';
+import { useState } from 'react';
+import SectionHeader from './SectionHeader';
+import CardLayout from './CardLayout';
+import { LuExternalLink } from 'react-icons/lu';
 
 const certificationsData = [
   {
@@ -63,78 +65,61 @@ export default function Certifications() {
     { label: 'Professional', id: 'professional' }
   ];
 
-  // Apply smooth scale animations when filters change
-  useEffect(() => {
-    gsap.fromTo('.cert-card-animate',
-      { opacity: 0, scale: 0.95, y: 15 },
-      { opacity: 1, scale: 1, y: 0, duration: 0.4, stagger: 0.05, ease: 'power2.out' }
-    );
-  }, [activeFilter]);
-
   const filteredCerts = certificationsData.filter((cert) => {
     return activeFilter === 'all' || cert.category === activeFilter;
   });
 
   return (
-    <section
-      id="certifications"
-      className="relative w-full py-24 bg-zinc-950 overflow-hidden z-10 flex flex-col items-center"
-    >
-      <div className="max-w-7xl mx-auto px-6 w-full text-center mb-12">
-        <span className="text-xs font-mono uppercase tracking-[0.25em] text-luxury-yellow/80">
-          Recognition
-        </span>
-        <h3 className="font-display font-bold text-4xl sm:text-5xl uppercase tracking-tight text-white mt-2">
-          Certificates & Courses
-        </h3>
-      </div>
+    <section id="certifications" className="relative w-full py-6 sm:py-8">
+      <SectionHeader title="Certifications & Continuous Learning" />
 
-      {/* Filter Chips Bar */}
-      <div className="max-w-7xl mx-auto px-6 w-full flex flex-wrap justify-center gap-3 mb-10 z-10">
-        {filterChips.map((chip) => (
-          <button
-            key={chip.id}
-            onClick={() => setActiveFilter(chip.id)}
-            className={`font-display text-xs font-semibold uppercase tracking-wider px-5 py-3 rounded-full border transition-all duration-300 ${
-              activeFilter === chip.id
-                ? 'bg-luxury-yellow text-zinc-950 border-transparent shadow-[0_0_15px_rgba(250,204,21,0.3)] scale-105'
-                : 'bg-zinc-900/40 text-zinc-400 border-white/5 hover:border-luxury-yellow/30 hover:text-white'
-            }`}
-          >
-            {chip.label}
-          </button>
-        ))}
-      </div>
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
+        {/* Filter Chips Bar */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {filterChips.map((chip) => (
+            <button
+              key={chip.id}
+              onClick={() => setActiveFilter(chip.id)}
+              className={`font-display text-xs font-semibold uppercase tracking-wider px-4 py-2 rounded-xl border transition-all duration-300 ${
+                activeFilter === chip.id
+                  ? 'bg-accent text-midnight border-accent font-bold'
+                  : 'bg-evening text-light-gray border-white/5 hover:border-accent/30 hover:text-snow'
+              }`}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
 
-      {/* Grid Display */}
-      <div className="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 z-10">
-        {filteredCerts.map((cert, idx) => (
-          <a
-            key={idx}
-            href={cert.url}
-            target="_blank"
-            rel="noreferrer"
-            className="cert-card-animate glassmorphism p-6 rounded-2xl border border-white/5 hover:border-luxury-yellow/40 flex flex-col justify-between min-h-[160px] shadow-lg transition-all duration-300 hover:-translate-y-1 group"
-          >
-            <div>
-              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest block mb-2">
-                {cert.provider}
-              </span>
-              <h4 className="font-display font-bold text-white text-base leading-snug group-hover:text-luxury-yellow transition-colors">
-                {cert.title}
-              </h4>
-            </div>
-            
-            <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-6">
-              <span className="text-[9px] font-mono uppercase text-zinc-500 tracking-wider">
-                {cert.category}
-              </span>
-              <span className="text-[10px] font-display font-semibold text-luxury-yellow group-hover:underline">
-                Verify Link
-              </span>
-            </div>
-          </a>
-        ))}
+        {/* Grid Display */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {filteredCerts.map((cert, idx) => (
+            <CardLayout key={idx}>
+              <a
+                href={cert.url}
+                target="_blank"
+                rel="noreferrer"
+                className="card-base p-6 h-full flex flex-col justify-between border border-white/5 hover:border-accent/30 group transition-all"
+              >
+                <div>
+                  <span className="text-[10px] font-mono text-accent uppercase tracking-widest block mb-2">
+                    {cert.provider}
+                  </span>
+                  <h4 className="font-display font-bold text-snow text-sm leading-snug group-hover:text-accent transition-colors">
+                    {cert.title}
+                  </h4>
+                </div>
+
+                <div className="flex items-center justify-between border-t border-white/5 pt-3 mt-4 text-xs font-mono text-light-gray">
+                  <span className="capitalize">{cert.category}</span>
+                  <span className="flex items-center gap-1 text-accent group-hover:underline">
+                    Verify <LuExternalLink className="text-xs" />
+                  </span>
+                </div>
+              </a>
+            </CardLayout>
+          ))}
+        </div>
       </div>
     </section>
   );

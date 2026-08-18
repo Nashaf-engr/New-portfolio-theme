@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 
 export default function CustomCursor() {
@@ -17,14 +17,13 @@ export default function CustomCursor() {
     const dot = cursorDotRef.current;
     const ring = cursorRingRef.current;
 
-    // GSAP quickTo for ultra-smooth buttery performance
+    // GSAP quickTo for smooth performance
     const xDotTo = gsap.quickTo(dot, 'x', { duration: 0.1, ease: 'power3.out' });
     const yDotTo = gsap.quickTo(dot, 'y', { duration: 0.1, ease: 'power3.out' });
     
     const xRingTo = gsap.quickTo(ring, 'x', { duration: 0.35, ease: 'power3.out' });
     const yRingTo = gsap.quickTo(ring, 'y', { duration: 0.35, ease: 'power3.out' });
 
-    // Center cursor offsets
     gsap.set(dot, { xPercent: -50, yPercent: -50 });
     gsap.set(ring, { xPercent: -50, yPercent: -50 });
 
@@ -37,12 +36,11 @@ export default function CustomCursor() {
 
     window.addEventListener('mousemove', onMouseMove);
 
-    // Hover interactions
     const onMouseEnterLink = () => {
       gsap.to(ring, {
         scale: 2.2,
-        backgroundColor: 'rgba(250, 204, 21, 0.1)',
-        borderColor: 'rgba(250, 204, 21, 0.8)',
+        backgroundColor: 'rgba(31, 223, 100, 0.1)',
+        borderColor: 'rgba(31, 223, 100, 0.8)',
         borderWidth: '1px',
         duration: 0.3
       });
@@ -57,7 +55,7 @@ export default function CustomCursor() {
       gsap.to(ring, {
         scale: 1,
         backgroundColor: 'transparent',
-        borderColor: 'rgba(250, 204, 21, 0.4)',
+        borderColor: 'rgba(31, 223, 100, 0.4)',
         borderWidth: '1.5px',
         duration: 0.3
       });
@@ -68,7 +66,6 @@ export default function CustomCursor() {
       });
     };
 
-    // Add listeners to interactive nodes
     const addListeners = () => {
       const interactiveElements = document.querySelectorAll(
         'a, button, [role="button"], input, textarea, .interactive'
@@ -81,7 +78,6 @@ export default function CustomCursor() {
 
     addListeners();
 
-    // Create a MutationObserver to watch for dynamic DOM changes (e.g. modals opening)
     const observer = new MutationObserver(addListeners);
     observer.observe(document.body, { childList: true, subtree: true });
 
@@ -100,15 +96,13 @@ export default function CustomCursor() {
 
   return (
     <>
-      {/* Outer Glow Ring */}
       <div
         ref={cursorRingRef}
-        className="fixed top-0 left-0 w-8 h-8 rounded-full border-[1.5px] border-luxury-yellow/40 pointer-events-none z-[9999] mix-blend-screen transition-transform duration-75 ease-out"
+        className="fixed top-0 left-0 w-8 h-8 rounded-full border-[1.5px] border-accent/40 pointer-events-none z-[9999] mix-blend-screen transition-transform duration-75 ease-out"
       />
-      {/* Inner Core Dot */}
       <div
         ref={cursorDotRef}
-        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-luxury-yellow pointer-events-none z-[9999] shadow-[0_0_12px_#facc15]"
+        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-accent pointer-events-none z-[9999] shadow-[0_0_12px_#1fdf64]"
       />
     </>
   );

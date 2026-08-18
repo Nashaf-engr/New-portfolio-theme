@@ -1,23 +1,23 @@
-import React from 'react';
 import { LuX, LuGithub, LuGlobe } from 'react-icons/lu';
+import Badge from './Badge';
 
 export default function ProjectModal({ project, onClose }) {
   if (!project) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="glassmorphism w-full max-w-2xl rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200 flex flex-col md:flex-row">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-deep w-full max-w-2xl rounded-xl border border-white/10 overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200 flex flex-col md:flex-row">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 w-9 h-9 rounded-full border border-white/10 hover:border-luxury-yellow/50 flex items-center justify-center transition-colors bg-zinc-950/40 z-35"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full border border-white/10 hover:border-accent/50 flex items-center justify-center transition-colors bg-black/50 z-20"
         >
-          <LuX className="text-zinc-400 hover:text-white" />
+          <LuX className="text-light-gray hover:text-snow" />
         </button>
 
         {/* Left Side (Image) */}
-        <div className="w-full md:w-1/2 h-[200px] md:h-auto overflow-hidden relative border-b md:border-b-0 md:border-r border-white/5">
+        <div className="w-full md:w-1/2 h-48 md:h-auto overflow-hidden relative border-b md:border-b-0 md:border-r border-white/5 bg-black/40">
           <img
             src={project.image}
             alt={project.title}
@@ -26,46 +26,43 @@ export default function ProjectModal({ project, onClose }) {
         </div>
 
         {/* Right Side (Details) */}
-        <div className="w-full md:w-1/2 p-8 flex flex-col justify-between min-h-[300px]">
+        <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between">
           <div>
-            <h3 className="font-display font-bold text-2xl text-white mb-2 leading-tight">
+            <h3 className="font-display font-bold text-xl text-snow mb-2 leading-tight">
               {project.title}
             </h3>
-            <p className="text-sm text-zinc-400 leading-relaxed mb-6">
+            <p className="text-xs sm:text-sm text-light-gray leading-relaxed mb-4">
               {project.description}
             </p>
 
-            {/* Tags/Tech Stack list */}
+            {/* Tags list */}
             <div className="flex flex-wrap gap-2 mb-6">
               {project.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[10px] font-mono tracking-wider px-3 py-1 rounded-full border border-white/5 bg-white/5 text-zinc-300"
-                >
-                  {tag}
-                </span>
+                <Badge key={tag} title={tag} className="border border-white/5" />
               ))}
             </div>
           </div>
 
-          {/* Action buttons (Preserving links exactly) */}
-          <div className="flex items-center gap-4 border-t border-white/5 pt-6 mt-auto">
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-zinc-200 text-zinc-950 font-display font-semibold py-3 rounded-xl transition-all shadow-md text-sm"
-            >
-              <LuGithub />
-              GitHub
-            </a>
+          {/* Action buttons */}
+          <div className="flex items-center gap-3 border-t border-white/5 pt-4 mt-auto">
+            {project.github && (
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 bg-evening hover:bg-white/10 text-snow font-display font-medium py-2.5 rounded-xl border border-white/10 transition-all text-xs sm:text-sm"
+              >
+                <LuGithub />
+                GitHub
+              </a>
+            )}
             
             {project.demo && (
               <a
                 href={project.demo}
                 target="_blank"
                 rel="noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 bg-luxury-yellow hover:bg-yellow-400 text-zinc-950 font-display font-semibold py-3 rounded-xl transition-all shadow-md text-sm"
+                className="flex-1 flex items-center justify-center gap-2 bg-accent hover:bg-accent/60 text-midnight font-display font-medium py-2.5 rounded-xl transition-all text-xs sm:text-sm"
               >
                 <LuGlobe />
                 Live Demo

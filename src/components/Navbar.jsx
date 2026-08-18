@@ -1,34 +1,62 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import gsap from 'gsap';
-import { LuPlus, LuX, LuMenu, LuSun, LuMoon } from 'react-icons/lu';
+import {
+  FaHome,
+  FaUser,
+  FaFolderOpen,
+  FaEnvelope,
+  FaPlus,
+  FaTimes,
+  FaBars,
+  FaSun,
+  FaMoon,
+  FaGraduationCap,
+  FaCertificate,
+  FaComments,
+  FaThLarge,
+  FaLaptopCode,
+} from 'react-icons/fa';
+
+const navLinks = [
+  { label: 'Home', id: 'home', icon: FaHome },
+  { label: 'About', id: 'about', icon: FaUser },
+  { label: 'Expertise', id: 'expertise', icon: FaThLarge },
+  { label: 'Skills', id: 'skills', icon: FaLaptopCode },
+  { label: 'Portfolio', id: 'work', icon: FaFolderOpen },
+  { label: 'Education', id: 'education', icon: FaGraduationCap },
+  { label: 'Certificates', id: 'certifications', icon: FaCertificate },
+  { label: 'Reviews', id: 'reviews', icon: FaComments },
+  { label: 'Contact', id: 'contact', icon: FaEnvelope },
+];
 
 export default function Navbar({ theme, setTheme, onAddTestimonial }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showNavbar, setShowNavbar] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
+  const [showNavbar, setShowNavbar] = useState(true);
+
+  const [formData, setFormData] = useState({ name: '', role: '', message: '' });
+
+  const lastScrollY = useRef(0);
+  const overlayRef = useRef(null);
+  const drawerRef = useRef(null);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
-  
-  // Testimonial Form State
-  const [formData, setFormData] = useState({ name: '', role: '', message: '' });
 
-  const lastScrollY = useRef(0);
-  const navRef = useRef(null);
-
-  // Scroll detection to hide/show navbar
+  // Auto-hide navbar on scroll down, show on scroll up
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       if (currentScrollY > 100) {
         if (currentScrollY > lastScrollY.current) {
-          setShowNavbar(false); // scrolling down - hide
+          setShowNavbar(false);
         } else {
-          setShowNavbar(true); // scrolling up - show
+          setShowNavbar(true);
         }
       } else {
-        setShowNavbar(true); // near top - show
+        setShowNavbar(true);
       }
       lastScrollY.current = currentScrollY;
     };
@@ -37,21 +65,61 @@ export default function Navbar({ theme, setTheme, onAddTestimonial }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // GSAP Intro animation for navbar
+  // Active section detection via IntersectionObserver
   useEffect(() => {
-    gsap.fromTo(navRef.current,
-      { y: -100, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 2.2 }
-    );
+    const sectionIds = navLinks.map((l) => l.id);
+    const observers = [];
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setActiveSection(id);
+          }
+        },
+        { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
+      );
+      observer.observe(el);
+      observers.push(observer);
+    });
+
+    return () => observers.forEach((o) => o.disconnect());
+  }, []);
+
+  // Drawer animation
+  const openDrawer = useCallback(() => {
+    setIsDrawerOpen(true);
+    requestAnimationFrame(() => {
+      if (overlayRef.current && drawerRef.current) {
+        gsap.to(overlayRef.current, { opacity: 1, duration: 0.25, ease: 'power2.out' });
+        gsap.to(drawerRef.current, { x: 0, duration: 0.35, ease: 'power3.out' });
+      }
+    });
+  }, []);
+
+  const closeDrawer = useCallback(() => {
+    if (drawerRef.current && overlayRef.current) {
+      gsap.to(drawerRef.current, { x: '100%', duration: 0.3, ease: 'power3.in' });
+      gsap.to(overlayRef.current, {
+        opacity: 0,
+        duration: 0.25,
+        ease: 'power2.in',
+        onComplete: () => setIsDrawerOpen(false),
+      });
+    } else {
+      setIsDrawerOpen(false);
+    }
   }, []);
 
   const handleNavClick = (e, targetId) => {
     e.preventDefault();
-    setIsMenuOpen(false);
+    closeDrawer();
     const targetElement = document.getElementById(targetId);
     if (targetElement) {
-      // Offset for sticky navbar
-      const yOffset = -80; 
+      const yOffset = -70;
       const y = targetElement.getBoundingClientRect().top + window.scrollY + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
@@ -65,185 +133,283 @@ export default function Navbar({ theme, setTheme, onAddTestimonial }) {
       name: formData.name,
       role: formData.role || 'Client',
       message: formData.message,
-      avatar: '/assets/icon.png' // default avatar placeholder
+      avatar: '/assets/icon.png',
     });
 
     setFormData({ name: '', role: '', message: '' });
     setIsModalOpen(false);
   };
 
-  const navLinks = [
-    { label: 'About', id: 'about' },
-    { label: 'Work', id: 'work' },
-    { label: 'Service', id: 'service' },
-    { label: 'Certificates', id: 'certifications' },
-    { label: 'Contact', id: 'contact' }
-  ];
-
   return (
     <>
+      {/* ═══════════════ Top Fixed Navbar ═══════════════ */}
       <header
-        ref={navRef}
-        className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
-          showNavbar ? 'translate-y-0' : '-translate-y-[110%]'
+        className={`fixed top-0 left-0 right-0 z-50 h-16 transition-transform duration-300 ${
+          showNavbar ? 'translate-y-0' : '-translate-y-full'
+        } ${
+          theme === 'dark'
+            ? 'bg-midnight/90 backdrop-blur-md border-b border-white/10 text-white'
+            : 'bg-white/95 backdrop-blur-md border-b border-slate-200 text-slate-900 shadow-sm'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <nav className="glassmorphism rounded-full px-6 py-3 flex items-center justify-between shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
-            {/* Logo */}
-            <a 
-              href="#home" 
-              onClick={(e) => handleNavClick(e, 'home')}
-              className="flex items-center gap-3 group"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-luxury-yellow to-yellow-600 shadow-[0_0_15px_rgba(250,204,21,0.2)] group-hover:scale-105 transition-transform duration-300">
-                <span className="font-display font-bold text-lg text-zinc-950">NS</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-display font-bold tracking-tight text-white group-hover:text-luxury-yellow transition-colors duration-300">
-                  Naseef Sharaf
-                </span>
-                <span className="text-[10px] text-zinc-400 font-mono tracking-wider">
-                  ENGINEER × DESIGNER
-                </span>
-              </div>
-            </a>
+        <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          {/* Left: Brand Logo */}
+          <a
+            href="#home"
+            onClick={(e) => handleNavClick(e, 'home')}
+            className="flex items-center gap-3 group shrink-0"
+          >
+            <div className="w-9 h-9 rounded-full bg-accent text-midnight flex items-center justify-center font-display font-bold text-sm shadow-[0_0_15px_rgba(31,223,100,0.3)] group-hover:scale-105 transition-transform">
+              NS
+            </div>
+            <div className="flex flex-col">
+              <span
+                className={`font-display font-bold text-sm sm:text-base tracking-tight transition-colors ${
+                  theme === 'dark'
+                    ? 'text-white group-hover:text-accent'
+                    : 'text-slate-900 group-hover:text-green-600'
+                }`}
+              >
+                Naseef Sharaf
+              </span>
+              <span
+                className={`text-[10px] font-mono -mt-0.5 tracking-wider hidden sm:block ${
+                  theme === 'dark' ? 'text-zinc-400' : 'text-slate-500'
+                }`}
+              >
+                ENGINEER × DESIGNER
+              </span>
+            </div>
+          </a>
 
-            {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
+          {/* Center: Desktop Navigation Links */}
+          <nav className="hidden xl:flex items-center gap-1.5">
+            {navLinks.map((link) => {
+              const isActive = activeSection === link.id;
+              return (
                 <a
                   key={link.id}
                   href={`#${link.id}`}
                   onClick={(e) => handleNavClick(e, link.id)}
-                  className="font-display text-sm tracking-wide text-zinc-300 hover:text-luxury-yellow transition-colors duration-200 relative py-1 after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-luxury-yellow after:scale-x-0 hover:after:scale-x-100 after:origin-left after:transition-transform after:duration-300"
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all ${
+                    isActive
+                      ? 'bg-accent text-midnight font-bold shadow-[0_0_12px_rgba(31,223,100,0.3)]'
+                      : theme === 'dark'
+                      ? 'text-zinc-300 hover:text-white hover:bg-white/10'
+                      : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                  }`}
                 >
                   {link.label}
                 </a>
-              ))}
-            </div>
-
-            {/* Premium CTA & Testimonial Trigger */}
-            <div className="flex items-center gap-4">
-              {/* Theme Switcher Button */}
-              <button
-                onClick={toggleTheme}
-                className="w-10 h-10 rounded-full flex items-center justify-center border border-zinc-950/10 dark:border-white/10 bg-zinc-950/5 dark:bg-white/5 text-zinc-950 dark:text-white hover:text-luxury-yellow dark:hover:text-luxury-yellow transition-all"
-                aria-label="Toggle Theme"
-              >
-                {theme === 'dark' ? <LuSun className="text-lg" /> : <LuMoon className="text-lg" />}
-              </button>
-
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="hidden sm:flex items-center gap-2 bg-luxury-yellow hover:bg-yellow-400 text-zinc-950 font-display font-medium text-xs uppercase tracking-wider px-5 py-2.5 rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(250,204,21,0.4)] hover:-translate-y-0.5 active:translate-y-0"
-              >
-                <LuPlus className="text-sm" />
-                Add Review
-              </button>
-
-              {/* Hamburger Button */}
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden w-10 h-10 rounded-full flex items-center justify-center border border-white/10 hover:border-luxury-yellow/50 transition-colors"
-                aria-label="Toggle Navigation"
-              >
-                {isMenuOpen ? <LuX className="text-xl" /> : <LuMenu className="text-xl" />}
-              </button>
-            </div>
+              );
+            })}
           </nav>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2.5">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
+                theme === 'dark'
+                  ? 'border-white/10 bg-evening text-zinc-300 hover:text-accent hover:border-accent/40'
+                  : 'border-slate-300 bg-slate-100 text-slate-700 hover:text-slate-950 hover:border-slate-400'
+              }`}
+              aria-label="Toggle Theme"
+            >
+              {theme === 'dark' ? <FaSun className="text-sm" /> : <FaMoon className="text-sm" />}
+            </button>
+
+            {/* Add Review Button */}
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="hidden sm:flex items-center gap-1.5 bg-accent hover:bg-accent/80 text-midnight font-display font-semibold text-xs uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-[0_0_15px_rgba(31,223,100,0.2)]"
+            >
+              <FaPlus className="text-[10px]" />
+              <span>Add Review</span>
+            </button>
+
+            {/* Hamburger Button for Drawer Menu */}
+            <button
+              onClick={openDrawer}
+              className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all hover:scale-105 ${
+                theme === 'dark'
+                  ? 'border-accent/40 hover:border-accent text-accent bg-midnight'
+                  : 'border-green-500 text-green-600 bg-green-50 hover:bg-green-100'
+              }`}
+              aria-label="Open Navigation"
+            >
+              <FaBars className="text-sm" />
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Fullscreen Mobile Drawer */}
-      <div
-        className={`fixed inset-0 z-40 bg-zinc-950/95 backdrop-blur-3xl transition-all duration-500 md:hidden flex flex-col justify-center px-12 ${
-          isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <div className="flex flex-col gap-8">
-          {navLinks.map((link, idx) => (
-            <a
-              key={link.id}
-              href={`#${link.id}`}
-              onClick={(e) => handleNavClick(e, link.id)}
-              className={`font-display text-4xl font-bold tracking-tight text-white hover:text-luxury-yellow transition-colors ${
-                isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'
-              }`}
-              style={{ transitionDelay: `${idx * 100}ms`, transitionDuration: '400ms' }}
-            >
-              {link.label}
-            </a>
-          ))}
-          
-          <button
-            onClick={() => {
-              setIsMenuOpen(false);
-              setIsModalOpen(true);
-            }}
-            className="w-fit flex items-center gap-2 bg-luxury-yellow text-zinc-950 font-display font-semibold px-6 py-4 rounded-full mt-6"
-          >
-            <LuPlus className="text-lg" />
-            Add Review
-          </button>
-        </div>
-      </div>
+      {/* ═══════════════ Sliding Navigation Drawer ═══════════════ */}
+      {isDrawerOpen && (
+        <>
+          {/* Overlay Backdrop */}
+          <div
+            ref={overlayRef}
+            onClick={closeDrawer}
+            className="fixed inset-0 z-[50000] bg-black/60 backdrop-blur-sm transition-opacity"
+            style={{ opacity: 0 }}
+          />
 
-      {/* Testimonial Form Modal (Apple inspired glassmorphism) */}
+          {/* Drawer Panel */}
+          <div
+            ref={drawerRef}
+            className={`fixed right-0 top-0 h-screen w-72 sm:w-80 shadow-2xl z-[50001] flex flex-col border-l ${
+              theme === 'dark'
+                ? 'bg-deep border-white/10 text-white'
+                : 'bg-white border-slate-200 text-slate-900'
+            }`}
+            style={{ transform: 'translateX(100%)' }}
+          >
+            {/* Drawer Header */}
+            <div
+              className={`h-16 flex items-center justify-between px-6 shrink-0 border-b ${
+                theme === 'dark'
+                  ? 'bg-midnight border-white/5'
+                  : 'bg-slate-50 border-slate-200'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full bg-accent text-midnight flex items-center justify-center font-bold text-xs">
+                  NS
+                </div>
+                <span className="text-xs font-mono uppercase tracking-widest font-bold">
+                  Navigation
+                </span>
+              </div>
+              <button
+                onClick={closeDrawer}
+                className="text-light-gray hover:text-accent transition-colors p-1.5 rounded-lg border border-white/10 hover:border-accent/40"
+                aria-label="Close Navigation"
+              >
+                <FaTimes className="text-sm" />
+              </button>
+            </div>
+
+            {/* Nav Links */}
+            <nav className="flex flex-col gap-1.5 px-4 py-6 flex-1 overflow-y-auto no-scrollbar">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive = activeSection === link.id;
+                return (
+                  <a
+                    key={link.id}
+                    href={`#${link.id}`}
+                    onClick={(e) => handleNavClick(e, link.id)}
+                    className={`flex items-center gap-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                      isActive
+                        ? 'bg-accent text-midnight font-bold tracking-wide shadow-[0_0_15px_rgba(31,223,100,0.3)]'
+                        : theme === 'dark'
+                        ? 'text-zinc-300 hover:bg-evening hover:text-white'
+                        : 'text-slate-700 hover:bg-slate-100 hover:text-slate-950'
+                    }`}
+                  >
+                    <Icon className="text-base shrink-0" />
+                    <span>{link.label}</span>
+                  </a>
+                );
+              })}
+            </nav>
+
+            {/* Drawer Footer Actions */}
+            <div
+              className={`p-4 border-t space-y-3 shrink-0 ${
+                theme === 'dark'
+                  ? 'bg-midnight border-white/5'
+                  : 'bg-slate-50 border-slate-200'
+              }`}
+            >
+              <button
+                onClick={() => {
+                  closeDrawer();
+                  setTimeout(() => setIsModalOpen(true), 300);
+                }}
+                className="w-full flex items-center justify-center gap-2 bg-accent hover:bg-accent/80 text-midnight font-semibold font-display text-xs uppercase tracking-wider py-2.5 rounded-xl transition-all"
+              >
+                <FaPlus className="text-xs" />
+                Add Review / Testimonial
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ═══════════════ Testimonial Form Modal ═══════════════ */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
-          <div className="glassmorphism w-full max-w-md p-8 rounded-3xl relative shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/15 animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+          <div
+            className={`border w-full max-w-md p-6 sm:p-8 rounded-2xl relative shadow-2xl ${
+              theme === 'dark'
+                ? 'bg-deep border-white/10 text-white'
+                : 'bg-white border-slate-200 text-slate-900'
+            }`}
+          >
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-6 right-6 w-8 h-8 rounded-full border border-white/10 hover:border-luxury-yellow/50 flex items-center justify-center transition-colors"
+              className="absolute top-5 right-5 w-8 h-8 rounded-full border border-white/10 hover:border-accent/50 flex items-center justify-center transition-colors text-light-gray hover:text-accent"
             >
-              <LuX className="text-zinc-400 hover:text-white" />
+              <FaTimes className="text-sm" />
             </button>
 
-            <h3 className="font-display font-bold text-2xl mb-2 text-white">Add Testimonial</h3>
-            <p className="text-sm text-zinc-400 mb-6">Leave your review to showcase on the live portfolio marquee.</p>
+            <h3 className="font-display font-bold text-xl mb-1">
+              Add Recommendation
+            </h3>
+            <p className="text-xs text-light-gray mb-5">
+              Submit your feedback to display on the live recommendations section.
+            </p>
 
-            <form onSubmit={handleFormSubmit} className="space-y-4">
+            <form onSubmit={handleFormSubmit} className="space-y-3.5">
               <div>
-                <label className="block text-xs uppercase tracking-wider text-zinc-400 mb-1">Name</label>
+                <label className="block text-xs uppercase tracking-wider text-light-gray mb-1 font-mono">
+                  Name
+                </label>
                 <input
                   type="text"
                   required
                   placeholder="Your Name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-zinc-900/60 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-luxury-yellow/50 transition-colors"
+                  className="input-field"
                 />
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-zinc-400 mb-1">Role / Company</label>
+                <label className="block text-xs uppercase tracking-wider text-light-gray mb-1 font-mono">
+                  Role / Organization
+                </label>
                 <input
                   type="text"
-                  placeholder="e.g. CEO, Tech Lead"
+                  placeholder="e.g. Co-Founder, Tech Lead"
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  className="w-full bg-zinc-900/60 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-luxury-yellow/50 transition-colors"
+                  className="input-field"
                 />
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-zinc-400 mb-1">Review</label>
+                <label className="block text-xs uppercase tracking-wider text-light-gray mb-1 font-mono">
+                  Message
+                </label>
                 <textarea
                   required
                   rows="4"
-                  placeholder="Share your experience working with me..."
+                  placeholder="Your feedback or testimonial..."
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full bg-zinc-900/60 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-luxury-yellow/50 transition-colors resize-none"
+                  className="input-field resize-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-luxury-yellow hover:bg-yellow-400 text-zinc-950 font-display font-semibold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(250,204,21,0.2)] hover:shadow-[0_0_30px_rgba(250,204,21,0.4)]"
+                className="w-full bg-accent hover:bg-accent/80 text-midnight font-display font-semibold py-2.5 rounded-xl transition-all shadow-[0_0_20px_rgba(31,223,100,0.2)]"
               >
-                Submit Review
+                Submit Feedback
               </button>
             </form>
           </div>

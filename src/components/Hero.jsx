@@ -1,208 +1,181 @@
-import React, { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useState, useEffect } from 'react';
 import { FaWhatsapp, FaInstagram, FaLinkedinIn, FaGithub } from 'react-icons/fa';
-import { LuArrowDownRight, LuArrowUpRight } from 'react-icons/lu';
+import { LuArrowUpRight } from 'react-icons/lu';
 
-gsap.registerPlugin(ScrollTrigger);
+const roles = [
+  'Creative Developer',
+  'UI/UX Designer',
+  'Computer Engineer',
+  'Front-End Specialist',
+];
 
 export default function Hero() {
-  const containerRef = useRef(null);
-  const textRef = useRef(null);
-  const imageRef = useRef(null);
-  const wordsRef = useRef(null);
+  const [roleIndex, setRoleIndex] = useState(0);
+  const [text, setText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
+  // Typewriter effect
   useEffect(() => {
-    // Scroll parallax effect on the image
-    gsap.to(imageRef.current, {
-      y: 80,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: 'top top',
-        end: 'bottom top',
-        scrub: 1.2
-      }
-    });
+    const currentRole = roles[roleIndex];
+    let typingSpeed = isDeleting ? 35 : 75;
 
-    // Fade out text on scroll
-    gsap.to(textRef.current, {
-      opacity: 0.1,
-      y: -50,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: 'top top',
-        end: 'bottom top',
-        scrub: 1.2
-      }
-    });
+    if (!isDeleting && text === currentRole) {
+      const pauseTimeout = setTimeout(() => setIsDeleting(true), 1800);
+      return () => clearTimeout(pauseTimeout);
+    } else if (isDeleting && text === '') {
+      const switchTimeout = setTimeout(() => {
+        setIsDeleting(false);
+        setRoleIndex((prev) => (prev + 1) % roles.length);
+      }, 250);
+      return () => clearTimeout(switchTimeout);
+    }
 
-    // GSAP Intro Anim on Hero Elements
-    const tl = gsap.timeline({ delay: 2.2 });
-    tl.fromTo('.hero-fade-in',
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'power3.out' }
-    );
+    const timer = setTimeout(() => {
+      setText((prev) =>
+        isDeleting
+          ? currentRole.substring(0, prev.length - 1)
+          : currentRole.substring(0, prev.length + 1)
+      );
+    }, typingSpeed);
 
-    // Text Word Roll Animation
-    const words = wordsRef.current.children;
-    const totalWords = words.length;
-    let currentIndex = 0;
-
-    const rollWords = () => {
-      const currentWord = words[currentIndex];
-      const nextIndex = (currentIndex + 1) % totalWords;
-      const nextWord = words[nextIndex];
-
-      gsap.timeline()
-        .to(currentWord, { y: '-100%', opacity: 0, duration: 0.5, ease: 'power2.inOut' })
-        .fromTo(nextWord, 
-          { y: '100%', opacity: 0 },
-          { y: '0%', opacity: 1, duration: 0.5, ease: 'power2.out' }
-        );
-
-      currentIndex = nextIndex;
-    };
-
-    const interval = setInterval(rollWords, 2500);
-
-    return () => {
-      clearInterval(interval);
-      ScrollTrigger.getAll().forEach(t => t.kill());
-    };
-  }, []);
+    return () => clearTimeout(timer);
+  }, [text, isDeleting, roleIndex]);
 
   const socialLinks = [
-    { icon: <FaWhatsapp />, url: 'https://wa.me/94720243581?text=Hello%20Naseef%2C%20I%20visited%20your%20portfolio.', color: 'hover:bg-[#25D366] hover:shadow-[0_0_20px_rgba(37,211,102,0.4)] hover:text-white', label: 'WhatsApp' },
-    { icon: <FaInstagram />, url: 'https://www.instagram.com/im_nashani.410?igsh=cGthcjVuZndkdG83', color: 'hover:bg-[#E1306C] hover:shadow-[0_0_20px_rgba(225,48,108,0.4)] hover:text-white', label: 'Instagram' },
-    { icon: <FaLinkedinIn />, url: 'https://www.linkedin.com/in/naseef-sharaf-mfa-291293346/', color: 'hover:bg-[#0077B5] hover:shadow-[0_0_20px_rgba(0,119,181,0.4)] hover:text-white', label: 'LinkedIn' },
-    { icon: <FaGithub />, url: 'https://github.com/Nashaf-engr', color: 'hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] hover:text-zinc-950', label: 'GitHub' }
+    { icon: <FaWhatsapp />, url: 'https://wa.me/94720243581?text=Hello%20Naseef%2C%20I%20visited%20your%20portfolio.', label: 'WhatsApp' },
+    { icon: <FaLinkedinIn />, url: 'https://www.linkedin.com/in/naseef-sharaf-mfa-291293346/', label: 'LinkedIn' },
+    { icon: <FaGithub />, url: 'https://github.com/Nashaf-engr', label: 'GitHub' },
+    { icon: <FaInstagram />, url: 'https://www.instagram.com/itz.ur.nx_shx_f', label: 'Instagram' },
+  ];
+
+  const stats = [
+    { value: '5+', label: 'Completed Projects' },
+    { value: '8+', label: 'Certifications' },
+    { value: '3+', label: 'Design Tools Mastered' },
+    { value: '1st', label: 'Engineering Undergraduate' },
   ];
 
   return (
-    <section
-      id="home"
-      ref={containerRef}
-      className="relative w-full min-h-screen flex items-center justify-center pt-28 pb-16 overflow-hidden bg-zinc-950 z-10"
-    >
-      {/* Absolute Background Typography Marquee */}
-      <div className="absolute top-[35%] left-0 w-full whitespace-nowrap pointer-events-none select-none opacity-[0.02] z-0 font-display font-extrabold text-[22vw] tracking-tighter text-white uppercase leading-none">
-        NASEEF SHARAF
-      </div>
+    <section id="home" className="relative w-full rounded-2xl overflow-hidden mb-4">
+      {/* ── Banner with Starry Space Background ── */}
+      <div
+        className="relative min-h-[22rem] sm:min-h-[24rem] md:min-h-[26rem] w-full bg-fixed bg-cover bg-center rounded-2xl overflow-hidden shadow-2xl flex flex-col justify-between"
+        style={{
+          backgroundImage: "url('/assets/background.png')",
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        {/* Dark Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-midnight via-black/60 to-black/30 pointer-events-none z-0" />
 
-      <div className="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center z-10">
-        
-        {/* Left Side Content */}
-        <div ref={textRef} className="lg:col-span-7 flex flex-col items-start text-left">
-          <span className="hero-fade-in inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-luxury-yellow/20 bg-luxury-yellow/5 text-xs font-mono font-medium tracking-[0.2em] text-luxury-yellow uppercase mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-luxury-yellow animate-ping" />
-            Creative Developer
-          </span>
-          
-          <h1 className="hero-fade-in font-display font-bold tracking-tight text-white leading-[0.9] text-5xl sm:text-6xl md:text-7xl xl:text-8xl mb-6 uppercase">
-            Hello, I'm <br />
-            <span className="text-gradient-yellow">MFA Naseef</span> <br />
-            {/* Vertical word rotation wheel */}
-            <span className="inline-flex h-[1.1em] relative overflow-hidden align-bottom text-luxury-yellow">
-              <span className="invisible select-none">Engineer</span>
-              <span ref={wordsRef} className="absolute inset-0 w-full h-full">
-                <span className="absolute left-0 top-0 opacity-100">Sharaf</span>
-                <span className="absolute left-0 top-0 opacity-0">Engineer</span>
-                <span className="absolute left-0 top-0 opacity-0">Designer</span>
-                <span className="absolute left-0 top-0 opacity-0">Creator</span>
+        {/* ── Translucent Hero Card ── */}
+        <div className="relative z-10 p-4 sm:p-6 md:p-8 flex-1 flex items-center">
+          <div className="bg-black/45 backdrop-blur-md border border-white/10 w-full p-6 sm:p-8 md:p-10 rounded-2xl flex items-center justify-between gap-6 shadow-2xl">
+            {/* Left Content */}
+            <div className="space-y-3 max-w-2xl">
+              <span className="text-xs font-mono uppercase tracking-[0.2em] text-accent font-bold block">
+                Portfolio Showcase
               </span>
-            </span>
-          </h1>
 
-          <p className="hero-fade-in max-w-xl text-zinc-400 text-base md:text-lg leading-relaxed mb-8">
-            Computer engineering student, visual thinker, and builder of clean digital experiences with equal care for logic and style.
-          </p>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-display !text-white tracking-tight leading-tight">
+                Hello, Check This Out!
+              </h1>
 
-          {/* Action buttons */}
-          <div className="hero-fade-in flex flex-wrap gap-4 mb-10">
-            <a
-              href="/assets/Resume.pdf"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 bg-gradient-to-r from-luxury-yellow to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-zinc-950 font-display font-semibold px-8 py-4 rounded-full shadow-[0_15px_30px_rgba(250,204,21,0.2)] hover:shadow-[0_20px_40px_rgba(250,204,21,0.3)] hover:-translate-y-1 active:translate-y-0 transition-all duration-300"
-            >
-              View Resume
-              <LuArrowUpRight className="text-lg" />
-            </a>
-            <a
-              href="#work"
-              onClick={(e) => {
-                e.preventDefault();
-                const target = document.getElementById('work');
-                if (target) target.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="flex items-center gap-2 bg-zinc-900/60 hover:bg-zinc-900 border border-white/10 hover:border-luxury-yellow/40 text-white font-display font-semibold px-8 py-4 rounded-full hover:-translate-y-1 active:translate-y-0 transition-all duration-300"
-            >
-              Explore Projects
-              <LuArrowDownRight className="text-lg text-luxury-yellow" />
-            </a>
-          </div>
+              {/* Code-style Tagline with Typewriter (Zero large space gap) */}
+              <div className="py-2 font-mono text-sm sm:text-base md:text-lg !text-white flex items-center flex-wrap gap-1">
+                <span>
+                  &lt;<span className="text-accent font-bold">div</span>&gt;
+                </span>
+                <span className="!text-white font-medium">I am a </span>
+                <span className="!text-white font-bold inline-block">
+                  {text}
+                  <span className="text-accent animate-pulse font-bold ml-0.5">|</span>
+                </span>
+                <span>
+                  &lt;/<span className="text-accent font-bold">div</span>&gt;
+                </span>
+              </div>
 
-          {/* Highlights & Tags */}
-          <div className="hero-fade-in flex flex-wrap gap-3 items-center">
-            <span className="text-xs font-mono text-zinc-500 uppercase tracking-widest mr-2">Highlight:</span>
-            {['University of Peradeniya', 'Web Development', 'Graphic Design'].map((hl) => (
-              <span 
-                key={hl} 
-                className="text-xs text-zinc-300 bg-zinc-900/40 border border-white/5 px-4 py-2 rounded-full font-display font-medium tracking-wide"
-              >
-                {hl}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Side Parallax Frame */}
-        <div className="lg:col-span-5 flex justify-center lg:justify-end">
-          <div 
-            ref={imageRef}
-            className="hero-fade-in relative w-full max-w-[420px] aspect-[4/5] rounded-[2.5rem] border border-white/10 bg-zinc-900/40 p-4 shadow-[0_30px_60px_rgba(0,0,0,0.6)] group hover:border-luxury-yellow/20 transition-all duration-500"
-          >
-            {/* Animated Ambient Behind Frame */}
-            <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-luxury-yellow/20 to-blue-500/10 opacity-30 group-hover:opacity-50 blur-xl -z-10 transition-opacity duration-500" />
-            
-            <div className="w-full h-full rounded-[2rem] overflow-hidden bg-zinc-950 border border-white/5 relative">
-              <img
-                src="/assets/profile.png"
-                alt="MFA Naseef Sharaf"
-                className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-              {/* Overlay Glass Card 1 */}
-              <div className="absolute bottom-6 left-6 right-6 glassmorphism p-4 rounded-2xl flex items-center justify-between border border-white/10 shadow-[0_10px_25px_rgba(0,0,0,0.4)]">
-                <div>
-                  <span className="block text-[10px] tracking-widest text-zinc-400 uppercase">Creative Systems</span>
-                  <span className="font-display font-bold text-sm text-white">Code + Design</span>
-                </div>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-luxury-yellow/20 text-luxury-yellow font-display text-xs font-bold">
-                  CE
-                </div>
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <a
+                  href="#about"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const target = document.getElementById('about');
+                    if (target) {
+                      const y = target.getBoundingClientRect().top + window.scrollY - 70;
+                      window.scrollTo({ top: y, behavior: 'smooth' });
+                    }
+                  }}
+                  className="bg-accent hover:bg-accent/80 !text-midnight text-sm sm:text-base font-bold px-7 py-2.5 rounded-xl transition-all shadow-[0_0_20px_rgba(31,223,100,0.35)] hover:scale-105"
+                >
+                  Explore
+                </a>
+                <a
+                  href="/assets/Resume.pdf"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="border border-white/20 hover:border-accent/50 bg-white/5 hover:bg-white/10 !text-white text-sm sm:text-base font-medium px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5"
+                >
+                  <span>Resume</span>
+                  <LuArrowUpRight className="text-accent text-base" />
+                </a>
               </div>
             </div>
 
-            {/* Social icons toolbar floating on side */}
-            <div className="absolute left-[-2rem] top-1/2 -translate-y-1/2 flex flex-col gap-3 z-20">
-              {socialLinks.map((social, index) => (
-                <a
-                  key={index}
-                  href={social.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={social.label}
-                  className={`w-11 h-11 rounded-full flex items-center justify-center bg-zinc-900 border border-white/10 text-zinc-400 ${social.color} transition-all duration-300 hover:scale-115`}
-                >
-                  {social.icon}
-                </a>
-              ))}
+            {/* Right Profile Portrait Frame */}
+            <div className="w-36 h-40 sm:w-44 sm:h-48 md:w-52 md:h-56 relative hidden md:block shrink-0">
+              <div className="w-full h-full rounded-2xl overflow-hidden border-2 border-accent/60 shadow-[0_0_30px_rgba(31,223,100,0.25)] p-1 bg-evening/80 backdrop-blur-sm group hover:border-accent transition-all duration-300">
+                <img
+                  src="/assets/profile.png"
+                  alt="MFA Naseef Sharaf"
+                  className="w-full h-full object-cover object-top rounded-xl group-hover:scale-105 transition-transform duration-500"
+                  onError={(e) => {
+                    e.target.src = '/assets/profile.jpg';
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
 
+        {/* ── Stats Strip Across Bottom ── */}
+        <div className="relative z-10 bg-midnight/90 border-t border-white/10 backdrop-blur-md py-4 px-6 sm:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-center justify-between">
+            {stats.map((stat) => (
+              <div key={stat.label} className="flex items-center gap-2">
+                <span className="text-base sm:text-lg md:text-xl text-accent font-bold font-display">
+                  {stat.value}
+                </span>
+                <span className="text-xs !text-gray-300 font-mono">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Quick Social Links Toolbar ── */}
+      <div className="bg-deep border border-white/5 rounded-xl mt-3 p-3 px-4 flex flex-wrap items-center justify-between gap-3 shadow-md">
+        <span className="text-xs font-mono text-light-gray">
+          Connect with MFA Naseef:
+        </span>
+        <div className="flex items-center gap-2.5">
+          {socialLinks.map((social, index) => (
+            <a
+              key={index}
+              href={social.url}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={social.label}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-evening border border-white/10 text-light-gray hover:text-accent hover:border-accent/40 transition-all text-xs"
+            >
+              {social.icon}
+            </a>
+          ))}
+        </div>
       </div>
     </section>
   );
